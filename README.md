@@ -69,3 +69,6 @@ task-workspace/
 
 The exact files can change by domain. The important rule is that the agent records enough context for another engineer to understand what was tried, what passed validation, and why the final candidate was selected.
 
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE).
