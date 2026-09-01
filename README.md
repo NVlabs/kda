@@ -1,8 +1,8 @@
 # Kernel Design Agents
 
-Kernel Design Agents (KDA) is a agent-centric workflow for using coding agents to research, implement, verify, and iterate on performance-sensitive CUDA kernel tasks.
+Kernel Design Agents (KDA) is an agent-centric workflow for using coding agents to research, implement, verify, and iterate on performance-sensitive CUDA kernel tasks.
 
-This repository documents the early research prototype and is still under active development (we are looking for community feedbacks!). If you are interested in HAN Lab Mafia's  solution ranking #1~3 on tracks at MLSys Kernel Contest, please refer to [mit-han-lab/mlsys2026-flashinfer-contest](https://github.com/mit-han-lab/mlsys2026-flashinfer-contest) for perform evaluation and reproducement.
+This repository documents an early research prototype and remains under active development. Community feedback and contributions are welcome. If you are interested in HAN Lab Mafia's solutions ranking #1–3 on tracks at the MLSys Kernel Contest, see [mit-han-lab/mlsys2026-flashinfer-contest](https://github.com/mit-han-lab/mlsys2026-flashinfer-contest) for performance evaluation and reproduction.
 
 ## Contents
 
@@ -12,6 +12,8 @@ This repository documents the early research prototype and is still under active
 | `prompts/README.md` | How to use prompt templates. |
 | `prompts/basic-flow.md` | Generic starter prompt for a new task. |
 | `CLAUDE.md` | Repository-facing agent instructions. |
+| `CONTRIBUTING.md` | Contribution process and DCO sign-off requirements. |
+| `THIRD_PARTY_NOTICES.md` | Third-party component and license disclosures. |
 
 ## Getting Started
 Install the agent workflow dependencies before starting the agent session:
@@ -30,6 +32,17 @@ mkdir -p ~/.claude/skills && cd ~/.claude/skills
 git clone https://github.com/mit-han-lab/ncu-report-skill.git
 git clone https://github.com/mit-han-lab/KernelWiki.git
 ```
+
+## Submodules
+
+The following third-party projects are included as Git submodules. The source URLs and revisions below are intentional and match the gitlinks recorded in this repository.
+
+| Path | Source | Pinned revision | License |
+|---|---|---|---|
+| `skills/KernelWiki` | [mit-han-lab/KernelWiki](https://github.com/mit-han-lab/KernelWiki.git) | [`76d27b56f804e7e7295d4c570e1e5d7eef4b0a75`](https://github.com/mit-han-lab/KernelWiki/commit/76d27b56f804e7e7295d4c570e1e5d7eef4b0a75) | MIT for upstream original material; source-specific terms remain applicable to identified third-party material |
+| `skills/ncu-report-skill` | [mit-han-lab/ncu-report-skill](https://github.com/mit-han-lab/ncu-report-skill.git) | [`d1887948c7d53690cfe6605f59c1329b8a1c6bb5`](https://github.com/mit-han-lab/ncu-report-skill/commit/d1887948c7d53690cfe6605f59c1329b8a1c6bb5) | MIT |
+
+These submodules are not covered by this repository's first-party license. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the applicable license text and additional details.
 
 Install the `humanize` Claude Code plugin from the Claude Code plugin UI:
 
@@ -69,6 +82,10 @@ task-workspace/
 
 The exact files can change by domain. The important rule is that the agent records enough context for another engineer to understand what was tried, what passed validation, and why the final candidate was selected.
 
+## Contributing
+
+This project accepts outside contributions under the Developer Certificate of Origin process. See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+
 ## License
 
-This project is licensed under the [Apache License 2.0](LICENSE).
+Except for the third-party submodules identified above, first-party documentation, prompts, skills-style content, and assets are licensed under the [Creative Commons Attribution 4.0 International License](LICENSE), and first-party source code is licensed under the [Apache License 2.0](LICENSE).
