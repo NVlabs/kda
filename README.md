@@ -14,6 +14,7 @@ This repository documents an early research prototype and remains under active d
 | `CLAUDE.md` | Repository-facing agent instructions. |
 | `CONTRIBUTING.md` | Contribution process and DCO sign-off requirements. |
 | `THIRD_PARTY_NOTICES.md` | Third-party component and license disclosures. |
+| `third_party_licenses/` | Verbatim upstream license files for distributed third-party components. |
 
 ## Getting Started
 Install the agent workflow dependencies before starting the agent session:
@@ -27,11 +28,14 @@ mkdir -p ~/.claude/skills
 ln -s "$(pwd)/skills/ncu-report-skill" ~/.claude/skills/ncu-report-skill
 ln -s "$(pwd)/skills/KernelWiki" ~/.claude/skills/KernelWiki
 
-# or clone skills directly
+# or clone the independently licensed ncu skill directly
 mkdir -p ~/.claude/skills && cd ~/.claude/skills
 git clone https://github.com/mit-han-lab/ncu-report-skill.git
-git clone https://github.com/mit-han-lab/KernelWiki.git
 ```
+
+Use KernelWiki from this repository's pinned submodule. A direct upstream
+checkout may contain artifact snapshots governed by additional terms that are
+omitted from this distribution.
 
 ## Submodules
 
@@ -39,7 +43,7 @@ The following third-party projects are included as Git submodules. The source UR
 
 | Path | Source | Pinned revision | License |
 |---|---|---|---|
-| `skills/KernelWiki` | [mit-han-lab/KernelWiki](https://github.com/mit-han-lab/KernelWiki.git) | [`76d27b56f804e7e7295d4c570e1e5d7eef4b0a75`](https://github.com/mit-han-lab/KernelWiki/commit/76d27b56f804e7e7295d4c570e1e5d7eef4b0a75) | MIT for upstream original material; source-specific terms remain applicable to identified third-party material |
+| `skills/KernelWiki` | [mit-han-lab/KernelWiki](https://github.com/mit-han-lab/KernelWiki.git) | Based on [`76d27b56f804e7e7295d4c570e1e5d7eef4b0a75`](https://github.com/mit-han-lab/KernelWiki/commit/76d27b56f804e7e7295d4c570e1e5d7eef4b0a75), with the repository-maintained release sanitization recorded by the gitlink | MIT for original material; embedded artifacts retain their upstream terms; restricted CuTe DSL artifacts are omitted |
 | `skills/ncu-report-skill` | [mit-han-lab/ncu-report-skill](https://github.com/mit-han-lab/ncu-report-skill.git) | [`d1887948c7d53690cfe6605f59c1329b8a1c6bb5`](https://github.com/mit-han-lab/ncu-report-skill/commit/d1887948c7d53690cfe6605f59c1329b8a1c6bb5) | MIT |
 
 These submodules are not covered by this repository's first-party license. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the applicable license text and additional details.
