@@ -22,7 +22,7 @@ All contributors must sign off each commit. The sign-off certifies that the cont
 Use the `--signoff` or `-s` option when creating commits:
 
 ```bash
-git commit --signoff -m "Describe the change"
+git commit -s -m "Add cool feature."
 ```
 
 This appends a line like the following to the commit message:
