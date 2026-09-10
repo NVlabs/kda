@@ -7,7 +7,7 @@ const siteUrl = process.env.SITE_URL ?? 'https://docs.humanfia.ai/KDA-wishlist';
 
 export const metadata: Metadata = {
   metadataBase: new URL(`${siteUrl}/`),
-  title: 'KDA Wishlist — Community wants, KDA provides!',
+  title: 'KDA: Kernel Design Agents',
   description:
     'Submit reproducible GPU kernel definitions and workloads for Kernel Design Agents to optimize, validate, and return.',
   keywords: [

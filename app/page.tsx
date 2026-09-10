@@ -1,7 +1,6 @@
 const NEW_REQUEST_URL =
   'https://github.com/humanfia/KDA-wishlist/issues/new?template=kernel-request.yml';
 const ISSUES_URL = 'https://github.com/humanfia/KDA-wishlist/issues';
-const KDA_URL = 'https://github.com/mit-han-lab/kernel-design-agents';
 const FLASHINFER_TRACE_URL =
   'https://bench.flashinfer.ai/docs/flashinfer-trace';
 const TECH_REPORT_URL =
@@ -264,7 +263,7 @@ export default function Home() {
           <a href="#process">How it works</a>
           <a href="#achievements">Achievements</a>
           <a href="#faq">FAQ</a>
-          <a className="nav-cta" href={ISSUES_URL}>View wishlist <span aria-hidden="true">↗</span></a>
+          <a className="nav-cta" href="https://nvlabs.github.io/kda">View Github <span aria-hidden="true">↗</span></a>
         </div>
       </nav>
 
@@ -283,9 +282,6 @@ export default function Home() {
             </a>
             <a className="button button-quiet" href={ISSUES_URL}>
               Browse &amp; upvote requests
-            </a>
-            <a className="button button-quiet" href={KDA_URL}>
-              KDA Repo <span aria-hidden="true">↗</span>
             </a>
           </div>
           <p className="hero-note">Open process. Public results. Built for real workloads.</p>
@@ -436,13 +432,13 @@ export default function Home() {
           <details>
             <summary>Will my request and results be public?<span aria-hidden="true">+</span></summary>
             <p>
-              Yes—unless we agree otherwise in advance. For accepted requests, KDA may publish the submitted definitions, generated implementations, benchmarks, profiling data, and design notes. We credit submitters for their definitions and workloads. We are also collecting representative kernels and workloads to guide the development of the next generation of KDA. If your business requires private kernels, email Ligeng Zhu at <a href="mailto:ligengz@nvidia.com">ligengz@nvidia.com</a> to discuss a collaboration.
+              Yes—unless we agree otherwise in advance. For accepted requests, KDA may publish the submitted definitions, generated implementations, benchmarks, profiling data, and design notes. We credit submitters for their definitions and workloads. We are also collecting representative kernels and workloads to guide the development of the next generation of KDA. If your business requires private kernels, email <a href="mailto:ligengz@nvidia.com">ligengz@nvidia.com</a> to discuss a collaboration through NVIDIA Kernel Factory.
             </p>
           </details>
           <details>
             <summary>How many kernels will KDA deliver?<span aria-hidden="true">+</span></summary>
             <p>
-              KDA typically delivers one to three of the most-requested kernels each week, depending on the team’s workloads. Sihao Liu and Ligeng Zhu are currently self-paying the GPU and tokens, so capacity is limited. If you have a larger operators, email <a href="mailto:ligengz@nvidia.com">ligengz@nvidia.com</a> to setup an official collaboration through NVIDIA Kernel Factory.
+              KDA typically delivers one to three of the most-requested kernels each week, depending on the team’s workloads. Sihao Liu and Ligeng Zhu are currently self-paying the GPU and tokens, so capacity is limited. If you have a bunch of kernels to optimize, email <a href="mailto:ligengz@nvidia.com">ligengz@nvidia.com</a> to setup an official collaboration through NVIDIA Kernel Factory.
             </p>
           </details>
           <details>
