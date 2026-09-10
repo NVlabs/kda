@@ -10,8 +10,6 @@ body:
       value: |
         Thanks for contributing a kernel need. Kernel Design Agents (KDA) research, implement, validate, and benchmark performance-critical programs from reproducible definitions.
 
-        Currently, KDA only supports NVIDIA B200 and B300 GPUs.
-
         See the [wishlist submission guide](https://github.com/NVlabs/kda/tree/wishlist) for definitions, workloads, and material pull requests.
 
         Complete every required field. Requests that cannot be reproduced or correctness-tested may be returned for revision.
