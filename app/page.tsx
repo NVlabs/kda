@@ -6,8 +6,10 @@ const FLASHINFER_TRACE_URL =
   'https://bench.flashinfer.ai/docs/flashinfer-trace';
 const TECH_REPORT_URL =
   'https://github.com/mit-han-lab/mlsys2026-flashinfer-contest/blob/main/docs/HAN_Lab_Kernel_Mafia_Technical_Report.pdf';
-const CONTEST_URL =
-  'https://github.com/mit-han-lab/mlsys2026-flashinfer-contest';
+const CONTEST_SOLUTIONS_URL =
+  'https://github.com/mit-han-lab/mlsys2026-flashinfer-contest-solution';
+const KDA_01_CONTEST_SOLUTIONS_URL =
+  'https://github.com/mit-han-lab/mlsys2026-flashinfer-contest-solution/tree/afef448b7d22f3d20128e87ab9afe3e565cb5812';
 
 const achievements = [
   {
@@ -19,7 +21,7 @@ const achievements = [
     project: 'FLASHINFER CONTEST',
     status: 'SOTA',
     linkLabel: 'Contest solution repo',
-    href: CONTEST_URL,
+    href: CONTEST_SOLUTIONS_URL,
   },
   {
     metric: '#1',
@@ -254,9 +256,9 @@ export default function Home() {
   return (
     <main>
       <nav className="nav shell" aria-label="Primary navigation">
-        <a className="brand" href="#top" aria-label="KDA Wishlist home">
+        <a className="brand" href="#top" aria-label="Kernel Design Agents home">
           <span className="brand-mark" aria-hidden="true">KDA</span>
-          <span>KDA <b>Wishlist</b></span>
+          <span>Kernel Design <b>Agents</b></span>
         </a>
         <div className="nav-links">
           <a href="#process">How it works</a>
@@ -273,6 +275,7 @@ export default function Home() {
           <div className="hero-lede">
             <p>Need a CUDA kernel for your training/inference but cannot find the experts to implement?</p>
             <p>Submit your definitions and workloads to KDA-wishlist, and KDA will automatically optimize it w/ agentic workflows!</p>
+            <p className="hero-affiliation">Part of NVIDIA agentic CUDA and RSI efforts</p>
           </div>
           <div className="hero-actions">
             <a className="button button-primary" href={NEW_REQUEST_URL}>
@@ -395,8 +398,8 @@ export default function Home() {
                   {linkLabel} <span aria-hidden="true">↗</span>
                 </a>
                 {id === 'kda-0.1-flashinfer-contest' && (
-                  <a className="achievement-link" href={KDA_URL}>
-                    KDA Repo <span aria-hidden="true">↗</span>
+                  <a className="achievement-link" href={KDA_01_CONTEST_SOLUTIONS_URL}>
+                    Contest Solutions <span aria-hidden="true">↗</span>
                   </a>
                 )}
               </div>
@@ -439,7 +442,7 @@ export default function Home() {
           <details>
             <summary>How many kernels will KDA deliver?<span aria-hidden="true">+</span></summary>
             <p>
-              KDA typically delivers one to three of the most-requested kernels each week, depending on the team’s development workload. Sihao Liu and Ligeng Zhu are currently self-paying the GPU and tokens, so capacity is limited. If you have a larger operator roadmap, email Ligeng Zhu at <a href="mailto:ligengz@nvidia.com">ligengz@nvidia.com</a> to discuss establishing an official collaboration with NVIDIA.
+              KDA typically delivers one to three of the most-requested kernels each week, depending on the team’s workloads. Sihao Liu and Ligeng Zhu are currently self-paying the GPU and tokens, so capacity is limited. If you have a larger operators, email <a href="mailto:ligengz@nvidia.com">ligengz@nvidia.com</a> to setup an official collaboration through NVIDIA Kernel Factory.
             </p>
           </details>
           <details>
@@ -462,14 +465,14 @@ export default function Home() {
       </section>
 
       <footer className="footer shell">
-        <a className="brand" href="#top" aria-label="KDA Wishlist home">
+        <a className="brand" href="#top" aria-label="Kernel Design Agents home">
           <span className="brand-mark" aria-hidden="true">KDA</span>
-          <span>KDA <b>Wishlist</b></span>
+          <span>Kernel Design <b>Agents</b></span>
         </a>
         <p>An agentic-driven CUDA project</p>
         <div>
           <a href={ISSUES_URL}>GitHub</a>
-          <a href="https://mlsys26.flashinfer.ai/">MLSys 2026</a>
+          <a href="https://github.com/humanfia/humanize2">Humanize</a>
         </div>
       </footer>
     </main>

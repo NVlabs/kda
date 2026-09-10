@@ -27,7 +27,8 @@ a { color: inherit; text-decoration: none; }
   border-bottom: 1px solid var(--line);
 }
 .brand { display: flex; align-items: center; gap: 12px; font-size: 16px; letter-spacing: -0.02em; }
-.brand b { font-weight: 480; color: #6a706d; }
+.brand > span:last-child { color: #000; }
+.brand b { color: inherit; font-weight: 480; }
 .brand-mark {
   width: 48px; height: 34px; display: grid; place-items: center;
   background: var(--ink); color: var(--acid); font: 700 12px/1 var(--font-geist-mono);
@@ -54,6 +55,8 @@ h1 em { color: #67706b; font-style: normal; font-weight: 430; }
 .hero-lede { max-width: 620px; margin: 0; font-size: clamp(17px, 1.5vw, 20px); line-height: 1.58; letter-spacing: -.02em; color: #505a55; }
 .hero-lede p { margin: 0; }
 .hero-lede p + p { margin-top: 14px; }
+.hero-lede .hero-affiliation { display: flex; align-items: center; gap: 8px; font-size: 13px; letter-spacing: 0; }
+.hero-affiliation::before { content: '•'; color: var(--ink); }
 .hero-actions { display: flex; gap: 12px; margin-top: 37px; flex-wrap: wrap; }
 .button { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 20px; padding: 0 20px; border-radius: 9px; font-size: 14px; font-weight: 630; transition: transform .2s ease, background .2s ease; }
 .button:hover { transform: translateY(-2px); }
