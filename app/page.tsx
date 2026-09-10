@@ -1,6 +1,9 @@
 const NEW_REQUEST_URL =
-  'https://github.com/humanfia/KDA-wishlist/issues/new?template=kernel-request.yml';
-const ISSUES_URL = 'https://github.com/humanfia/KDA-wishlist/issues';
+  'https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml';
+const ISSUES_URL =
+  'https://github.com/NVlabs/kda/issues?q=is%3Aissue%20is%3Aopen%20label%3Awishlist';
+const REPOSITORY_URL = 'https://github.com/NVlabs/kda';
+const SUBMISSION_GUIDE_URL = 'https://github.com/NVlabs/kda/tree/wishlist';
 const FLASHINFER_TRACE_URL =
   'https://bench.flashinfer.ai/docs/flashinfer-trace';
 const TECH_REPORT_URL =
@@ -263,7 +266,7 @@ export default function Home() {
           <a href="#process">How it works</a>
           <a href="#achievements">Achievements</a>
           <a href="#faq">FAQ</a>
-          <a className="nav-cta" href="https://nvlabs.github.io/kda">View Github <span aria-hidden="true">↗</span></a>
+          <a className="nav-cta" href={REPOSITORY_URL}>View GitHub <span aria-hidden="true">↗</span></a>
         </div>
       </nav>
 
@@ -284,7 +287,7 @@ export default function Home() {
               Browse &amp; upvote requests
             </a>
           </div>
-          <p className="hero-note">Open process. Public results. Built for real workloads.</p>
+          <p className="hero-note">Currently supporting NVIDIA B200 and B300 GPUs only.</p>
         </div>
 
         <div className="pipeline" aria-label="Kernel Design Agents workflow">
@@ -340,6 +343,7 @@ export default function Home() {
           <div className="section-links">
             <a className="text-link" href={TECH_REPORT_URL}>Explore the KDA tech report <span aria-hidden="true">↗</span></a>
             <a className="text-link" href={FLASHINFER_TRACE_URL}>Explore the FlashInfer-Trace spec <span aria-hidden="true">↗</span></a>
+            <a className="text-link" href={SUBMISSION_GUIDE_URL}>Read the submission guide <span aria-hidden="true">↗</span></a>
           </div>
         </div>
       </section>
@@ -426,6 +430,10 @@ export default function Home() {
         </div>
         <div className="faq-list">
           <details>
+            <summary>Which GPUs are supported?<span aria-hidden="true">+</span></summary>
+            <p>Currently, KDA only supports NVIDIA B200 and B300 GPUs. Select one or both targets in the request form and provide reproducible workloads for each selected target.</p>
+          </details>
+          <details>
             <summary>How do upvotes work?<span aria-hidden="true">+</span></summary>
             <p>Open the public wishlist, find a request you care about, and add a thumbs-up reaction to the top-level GitHub issue. Comments are best used for new workload evidence or implementation context.</p>
           </details>
@@ -467,7 +475,7 @@ export default function Home() {
         </a>
         <p>An agentic-driven CUDA project</p>
         <div>
-          <a href={ISSUES_URL}>GitHub</a>
+          <a href={REPOSITORY_URL}>GitHub</a>
           <a href="https://github.com/humanfia/humanize2">Humanize</a>
         </div>
       </footer>
