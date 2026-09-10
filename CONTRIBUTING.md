@@ -4,6 +4,10 @@ We welcome outside contributions to Kernel Design Agents through GitHub issues a
 
 For substantial changes, open an issue first so the proposed scope and approach can be discussed. Keep changes focused, use English for repository-facing content, and include any validation or supporting evidence relevant to the change.
 
+## Kernel Wishlist Submissions
+
+For kernel optimization requests, use the [Kernel wishlist form](https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml). The wishlist currently supports NVIDIA B200 and B300 GPUs only. Follow the [submission guide](https://github.com/NVlabs/kda/tree/wishlist) and target the `wishlist` branch when contributing definitions, workloads, or reproduction instructions. Changes to the active issue form belong on `main`, and website changes belong on `pages`.
+
 ## Licensing
 
 By submitting a contribution, you agree that it may be distributed under the applicable terms in [LICENSE](LICENSE):

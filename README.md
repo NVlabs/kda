@@ -16,6 +16,12 @@ This repository documents an early research prototype and remains under active d
 | `THIRD_PARTY_NOTICES.md` | Third-party component and license disclosures. |
 | `third_party_licenses/` | Verbatim upstream license files for distributed third-party components. |
 
+## Community Kernel Wishlist
+
+Have a kernel that needs optimization? [Open a wishlist request](https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml) with a reproducible definition and representative workloads. The community wishlist currently supports NVIDIA B200 and B300 GPUs only.
+
+[Browse and upvote requests](https://github.com/NVlabs/kda/issues?q=is%3Aissue%20is%3Aopen%20label%3Awishlist), read the [submission guide](https://github.com/NVlabs/kda/tree/wishlist), or visit the [project website](https://nvlabs.github.io/kda/). Submit definitions and workloads through pull requests targeting `wishlist`. Website source lives on `pages`; active issue forms are maintained on `main`.
+
 ## Getting Started
 Install the agent workflow dependencies before starting the agent session:
 
