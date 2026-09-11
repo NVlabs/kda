@@ -1,6 +1,6 @@
 # Example: RMSNorm
 
-This example shows the submission format. Replace this introduction with your issue link, affected project, and observed bottleneck when submitting a real request.
+This example shows the submission format. Copy it to `requests/<github-username>-<kernel-name>/` and replace this introduction with your affected project, observed bottleneck, and desired improvement. Submit a pull request directly to `wishlist`; an issue is optional. Keep the full request details in this README and link any existing discussion if useful.
 
 RMSNorm (root mean square normalization) scales each input row by the reciprocal square root of its mean squared value plus epsilon, then applies a weight vector.
 
