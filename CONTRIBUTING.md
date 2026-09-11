@@ -2,11 +2,15 @@
 
 We welcome outside contributions to Kernel Design Agents through GitHub issues and pull requests.
 
-For substantial changes, open an issue first so the proposed scope and approach can be discussed. Keep changes focused, use English for repository-facing content, and include any validation or supporting evidence relevant to the change.
+For substantial changes to KDA itself, open an issue first so the proposed scope and approach can be discussed. Kernel wishlist submissions can go directly to a pull request as described below. Keep changes focused, use English for repository-facing content, and include any validation or supporting evidence relevant to the change.
 
 ## Kernel Wishlist Submissions
 
-For kernel optimization requests, use the [Kernel wishlist form](https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml). The wishlist currently supports NVIDIA B200 and B300 GPUs only. Follow the [submission guide](https://github.com/NVlabs/kda/tree/wishlist) and target the `wishlist` branch when contributing definitions, workloads, or reproduction instructions. Changes to the active issue form belong on `main`, and website changes belong on `pages`.
+Submit kernel optimization requests directly as pull requests (PRs) targeting `wishlist`; no issue is required. Follow the [submission guide](https://github.com/NVlabs/kda/tree/wishlist#submit), copy the example into `requests/<github-username>-<kernel-name>/`, and keep the request details in that directory's `README.md`. The PR description can be brief and may link an existing discussion. The wishlist currently supports NVIDIA B200 and B300 GPUs only.
+
+If you have an idea or need help preparing the files, [discuss a kernel idea](https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml). Complete files and benchmark results are optional for that discussion. Merging a wishlist PR records the request; optimization progress and result links are tracked on the original PR.
+
+Changes to the active issue form belong on `main`, and website changes belong on `pages`.
 
 ## Licensing
 

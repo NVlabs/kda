@@ -18,9 +18,9 @@ This repository documents an early research prototype and remains under active d
 
 ## Community Kernel Wishlist
 
-Have a kernel that needs optimization? [Open a wishlist request](https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml) with a reproducible definition and representative workloads. The community wishlist currently supports NVIDIA B200 and B300 GPUs only.
+Have a kernel that needs optimization? [Submit a request](https://github.com/NVlabs/kda/tree/wishlist#submit) directly as a pull request to `wishlist`, with a reproducible definition, representative workloads, and your best-known baseline implementation. No issue is required. The community wishlist currently supports NVIDIA B200 and B300 GPUs only.
 
-[Browse and upvote requests](https://github.com/NVlabs/kda/issues?q=is%3Aissue%20is%3Aopen%20label%3Awishlist), read the [submission guide](https://github.com/NVlabs/kda/tree/wishlist), or visit the [project website](https://nvlabs.github.io/kda/). Submit definitions and workloads through pull requests targeting `wishlist`. Website source lives on `pages`; active issue forms are maintained on `main`.
+[Browse and upvote requests](https://github.com/NVlabs/kda/pulls?q=is%3Apr%20base%3Awishlist), [discuss an idea](https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml) if you need help preparing the files, or visit the [project website](https://nvlabs.github.io/kda/). Keep request details in `requests/<github-username>-<kernel-name>/README.md`; the pull request description can be brief. Merging records the request, while optimization progress and result links remain on the original pull request. Website source lives on `pages`; active issue forms are maintained on `main`.
 
 ## Getting Started
 Install the agent workflow dependencies before starting the agent session:

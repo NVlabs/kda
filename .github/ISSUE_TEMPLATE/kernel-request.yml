@@ -1,5 +1,5 @@
-name: Kernel wishlist
-description: Request a reproducible kernel optimization for NVIDIA B200 or B300.
+name: Discuss a kernel idea
+description: Discuss a kernel need or get help preparing a wishlist request.
 title: "[wishlist] "
 labels:
   - wishlist
@@ -8,63 +8,25 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for contributing a kernel need. Kernel Design Agents (KDA) research, implement, validate, and benchmark performance-critical programs from reproducible definitions.
+        Use this issue to discuss a kernel idea or get help preparing a request for Kernel Design Agents (KDA). Complete definitions, workloads, and benchmarks are optional here.
 
-        See the [wishlist submission guide](https://github.com/NVlabs/kda/tree/wishlist) for definitions, workloads, and material pull requests.
-
-        Complete every required field. Requests that cannot be reproduced or correctness-tested may be returned for revision.
+        If your files are ready, [submit a pull request directly to wishlist](https://github.com/NVlabs/kda/tree/wishlist#submit). You do not need to open an issue first or repeat the request details here.
 
   - type: input
     id: project
     attributes:
       label: Project and real-world impact
-      description: Which framework, inference system, research project, or production workload needs this kernel?
-      placeholder: Project link and a short explanation of who benefits
+      description: Which project or workload needs this kernel, and who would benefit?
+      placeholder: Project link or name and a short explanation of the use case
     validations:
       required: true
 
   - type: textarea
     id: summary
     attributes:
-      label: Kernel summary
-      description: What should the kernel compute, and where is the current bottleneck?
-      placeholder: Describe the operation, current implementation, and observed bottleneck.
-    validations:
-      required: true
-
-  - type: input
-    id: trace
-    attributes:
-      label: FlashInfer Trace definition
-      description: Link to a public, versioned definition containing the reference implementation and workloads.
-      placeholder: https://github.com/owner/repository/tree/commit/path
-    validations:
-      required: true
-
-  - type: textarea
-    id: interface
-    attributes:
-      label: Input and output contract
-      description: List shapes, data types, layouts, outputs, and important edge cases.
-      placeholder: Include enough detail for an independent implementation.
-    validations:
-      required: true
-
-  - type: textarea
-    id: workloads
-    attributes:
-      label: Representative workloads
-      description: Describe the workload distribution and explain why these cases matter.
-      placeholder: Shapes, sequence lengths, batch sizes, frequencies, or a linked workload file
-    validations:
-      required: true
-
-  - type: textarea
-    id: correctness
-    attributes:
-      label: Correctness requirements
-      description: Explain the reference result, numerical tolerances, edge cases, and validation command.
-      placeholder: Reference command, tolerances, determinism requirements, and expected output
+      label: Kernel idea and desired improvement
+      description: What should the kernel compute? Describe the bottleneck or the help you need.
+      placeholder: Describe the operation, what is slow or missing, and the improvement you hope for.
     validations:
       required: true
 
@@ -81,56 +43,10 @@ body:
       required: true
 
   - type: textarea
-    id: benchmark
+    id: context
     attributes:
-      label: Benchmark configuration
-      description: Provide the exact command, environment requirements, warm-up policy, and measurement method.
-      placeholder: Reproduction steps and the command that produces the baseline measurement
+      label: Available context (optional)
+      description: Share any shapes, data types, constraints, code links, workloads, or measurements you already have. Leave this blank if you are still exploring the idea.
+      placeholder: Existing implementation, example inputs, related discussion, or questions
     validations:
-      required: true
-
-  - type: dropdown
-    id: objective
-    attributes:
-      label: Primary optimization objective
-      options:
-        - Latency
-        - Throughput
-        - Memory usage
-        - Compilation overhead
-        - Performance across a workload distribution
-        - Other measurable objective
-    validations:
-      required: true
-
-  - type: textarea
-    id: constraints
-    attributes:
-      label: Implementation constraints
-      description: List required interfaces, allowed dependencies, portability needs, integration boundaries, or other restrictions.
-      placeholder: Languages, libraries, build limits, interfaces, and upstream requirements
-    validations:
-      required: true
-
-  - type: input
-    id: license
-    attributes:
-      label: License and public-use terms
-      description: Identify the license for the definition, reference code, workloads, and any linked assets.
-      placeholder: SPDX license identifier and links to relevant license files
-    validations:
-      required: true
-
-  - type: checkboxes
-    id: confirmations
-    attributes:
-      label: Submission confirmations
-      options:
-        - label: I can reproduce the reference implementation and benchmark from the linked materials.
-          required: true
-        - label: I have provided a correctness-testable definition and representative workloads.
-          required: true
-        - label: I understand that submission does not guarantee selection.
-          required: true
-        - label: I understand that the definition, implementation, benchmarks, and design summary may be published publicly unless the team explicitly agrees otherwise.
-          required: true
+      required: false
