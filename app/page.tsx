@@ -1,9 +1,9 @@
-const NEW_REQUEST_URL =
+const DISCUSSION_URL =
   'https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml';
-const ISSUES_URL =
-  'https://github.com/NVlabs/kda/issues?q=is%3Aissue%20is%3Aopen%20label%3Awishlist';
+const REQUESTS_URL =
+  'https://github.com/NVlabs/kda/pulls?q=is%3Apr%20base%3Awishlist';
 const REPOSITORY_URL = 'https://github.com/NVlabs/kda';
-const SUBMISSION_GUIDE_URL = 'https://github.com/NVlabs/kda/tree/wishlist';
+const SUBMISSION_GUIDE_URL = 'https://github.com/NVlabs/kda/tree/wishlist#submit';
 const FLASHINFER_TRACE_URL =
   'https://bench.flashinfer.ai/docs/flashinfer-trace';
 const TECH_REPORT_URL =
@@ -154,14 +154,14 @@ const moreImprovements = [
 const workflow = [
   {
     number: '01',
-    title: 'Open a request',
-    copy: 'Share a reproducible FlashInfer Trace definition and explain why the kernel matters.',
+    title: 'Submit a request',
+    copy: 'Copy the example, add your definition, workloads, and baseline, then open a pull request to wishlist. No issue is required.',
     teaser: 'request',
   },
   {
     number: '02',
     title: 'Community votes',
-    copy: 'Others add a thumbs-up reaction to the GitHub issue and contribute useful workload context.',
+    copy: 'Others add a thumbs-up reaction to the pull request and contribute useful workload context.',
     teaser: 'signals',
   },
   {
@@ -280,11 +280,11 @@ export default function Home() {
             <p className="hero-affiliation">Part of NVIDIA agentic CUDA and RSI efforts</p>
           </div>
           <div className="hero-actions">
-            <a className="button button-primary" href={NEW_REQUEST_URL}>
-              Request a kernel <span aria-hidden="true">↗</span>
+            <a className="button button-primary" href={SUBMISSION_GUIDE_URL}>
+              Submit a request <span aria-hidden="true">↗</span>
             </a>
-            <a className="button button-quiet" href={ISSUES_URL}>
-              Browse &amp; upvote requests
+            <a className="button button-quiet" href={DISCUSSION_URL}>
+              Discuss an idea
             </a>
           </div>
           <p className="hero-note">Currently supporting NVIDIA B200 and B300 GPUs only.</p>
@@ -304,7 +304,7 @@ export default function Home() {
                   FlashInfer Trace <span aria-hidden="true">↗</span>
                 </a>
               </strong>
-              <p>Definition · Workloads · Target</p>
+              <p>Definition · Workloads · Baseline</p>
             </div>
           </div>
           <div className="connector connector-research"><span className="connector-track" aria-hidden="true"><i /></span><small>research · generate · verify</small></div>
@@ -431,11 +431,19 @@ export default function Home() {
         <div className="faq-list">
           <details>
             <summary>Which GPUs are supported?<span aria-hidden="true">+</span></summary>
-            <p>Currently, KDA only supports NVIDIA B200 and B300 GPUs. Select one or both targets in the request form and provide reproducible workloads for each selected target.</p>
+            <p>Currently, KDA only supports NVIDIA B200 and B300 GPUs. Document one or both targets in your request README and provide reproducible workloads for each selected target.</p>
+          </details>
+          <details>
+            <summary>Should I open a pull request or an issue?<span aria-hidden="true">+</span></summary>
+            <p>Files ready? Follow the <a href={SUBMISSION_GUIDE_URL}>submission guide</a> and open a pull request to wishlist. Keep the details in your request README; the pull request description can be brief. If you need help preparing the files, <a href={DISCUSSION_URL}>discuss an idea</a> in an issue. Complete files are optional for discussions, and an issue is never required before a pull request.</p>
+          </details>
+          <details>
+            <summary>Does a merged request mean the kernel is ready?<span aria-hidden="true">+</span></summary>
+            <p>Merging a pull request adds the request to the wishlist. It does not mean optimization is complete. Follow the original pull request for progress and result links, including after it is merged.</p>
           </details>
           <details>
             <summary>How do upvotes work?<span aria-hidden="true">+</span></summary>
-            <p>Open the public wishlist, find a request you care about, and add a thumbs-up reaction to the top-level GitHub issue. Comments are best used for new workload evidence or implementation context.</p>
+            <p><a href={REQUESTS_URL}>Browse requests</a>, find one you care about, and add a thumbs-up reaction to the pull request description. The list includes open and closed pull requests so merged requests remain visible. Comments are best used for new workload evidence or implementation context.</p>
           </details>
           <details>
             <summary>Will my request and results be public?<span aria-hidden="true">+</span></summary>
@@ -462,9 +470,10 @@ export default function Home() {
           <h2>What should<br />KDA build?</h2>
         </div>
         <div className="final-actions">
-          <p>Bring the definition and real workloads. We’ll bring the research loop.</p>
-          <a className="button button-acid" href={NEW_REQUEST_URL}>Submit a kernel request <span aria-hidden="true">↗</span></a>
-          <a className="final-secondary" href={ISSUES_URL}>Or browse the wishlist and upvote <span aria-hidden="true">→</span></a>
+          <p>Bring the definition, real workloads, and your best-known baseline implementation.</p>
+          <a className="button button-acid" href={SUBMISSION_GUIDE_URL}>Submit a request <span aria-hidden="true">↗</span></a>
+          <a className="final-secondary" href={DISCUSSION_URL}>Discuss an idea <span aria-hidden="true">→</span></a>
+          <a className="final-secondary" href={REQUESTS_URL}>Browse and upvote requests <span aria-hidden="true">→</span></a>
         </div>
       </section>
 

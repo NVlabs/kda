@@ -6,7 +6,7 @@ Live site: <https://nvlabs.github.io/kda/>
 
 KDA stands for Kernel Design Agents: a workflow in which coding agents research, implement, verify, profile, and iterate on performance-sensitive kernel tasks.
 
-This website introduces the program, helps contributors prepare reproducible kernel definitions and workloads, and directs them to GitHub Issues. GitHub Issues is the repository's public request tracker, where contributors submit kernel needs, add useful context, and signal demand with thumbs-up reactions.
+This website introduces the program and directs contributors with prepared files to submit a pull request (PR) to `wishlist`. The main **Submit a request** link opens the submission guide; **Discuss an idea** opens an optional GitHub issue for early discussion or help preparing the files. Request details live in the submitted README, so contributors do not have to repeat them in an issue or PR description.
 
 ## Run locally
 
@@ -50,13 +50,13 @@ Pushes to `pages` run `.github/workflows/deploy-pages.yml`, which builds the sta
 
 ## Submission workflow
 
-1. Define the task in FlashInfer Trace, a reproducible format that describes the reference implementation, input and output contract, correctness requirements, and representative workloads.
-2. Open a GitHub issue with the [Kernel wishlist form](https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml). Currently, KDA only supports NVIDIA B200 and B300 GPUs. Follow the [submission guide](https://github.com/NVlabs/kda/tree/wishlist); material pull requests target `wishlist`.
-3. Community members add thumbs-up reactions to the top-level issue and use comments to contribute new workload evidence or implementation context.
-4. The team reviews the task. Selected requests enter a measured loop of research, implementation, correctness validation, performance profiling, and candidate selection.
+1. Follow the [submission guide](https://github.com/NVlabs/kda/tree/wishlist#submit). Create a branch from `wishlist` in your fork and copy `example/` to `requests/<github-username>-<kernel-name>/`. Define the task in FlashInfer Trace, a reproducible format that describes the reference implementation, input and output contract, correctness requirements, and representative workloads. Include the best-known comparison implementation in `baseline.py`; `benchmark.py` is optional, with `flashinfer-bench` used when it is absent.
+2. Submit a PR directly to `NVlabs/kda:wishlist`; no issue or assigned number is needed. Keep the request details in its `README.md` and the PR description brief. Currently, KDA only supports NVIDIA B200 and B300 GPUs. If you need help preparing the materials, [discuss an idea](https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml); complete files are optional for that discussion.
+3. Community members add thumbs-up reactions to the PR description and use comments to contribute new workload evidence or implementation context.
+4. The team reviews the task. Merging records the request; it does not mean optimization is complete. Progress and result links remain on the original PR after merging. Selected requests enter a measured loop of research, implementation, correctness validation, performance profiling, and candidate selection.
 5. Completed tasks may return an optimized kernel, benchmark comparisons, reproduction instructions, environment details, design notes, known limitations, and an upstream-ready contribution.
 
-[Browse and upvote wishlist requests](https://github.com/NVlabs/kda/issues?q=is%3Aissue%20is%3Aopen%20label%3Awishlist).
+[Browse and upvote wishlist requests](https://github.com/NVlabs/kda/pulls?q=is%3Apr%20base%3Awishlist). The list includes open and closed PRs so collected requests remain visible without requiring a label first.
 
 Submission does not guarantee selection. The program prioritizes tasks that affect real systems, can be evaluated automatically, produce publicly reproducible results, benefit multiple projects, and have a realistic path to upstream adoption.
 
