@@ -92,6 +92,18 @@ h1 em { color: #67706b; font-style: normal; font-weight: 430; }
 .connector-select .connector-track i { animation-delay: var(--pipeline-step-delay); }
 .connector small { color: #748078; font: 500 9px/1 var(--font-geist-mono); letter-spacing: .04em; }
 
+.request-section { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; scroll-margin-top: 24px; }
+.request-intro { max-width: 430px; margin: 24px 0; font-size: 16px; line-height: 1.6; }
+.request-form { min-width: 0; display: grid; gap: 22px; padding: 28px; border: 1px solid var(--line); border-radius: 12px; }
+.request-field { display: grid; gap: 9px; }
+.request-field label { font-size: 16px; font-weight: 600; }
+.request-field input { width: 100%; min-width: 0; padding: 12px 14px; border: 1px solid #727c76; border-radius: 6px; background: #fff; color: var(--ink); font: inherit; font-size: 16px; }
+.request-field input:focus-visible, .request-form button:focus-visible { outline: 3px solid #426d00; outline-offset: 3px; }
+.request-field p, .request-note { margin: 0; color: #59605c; font-size: 14px; line-height: 1.5; }
+.request-target { margin: 0; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.request-error { margin: 0; color: #9c2720; font-size: 16px; line-height: 1.5; }
+.request-form button { cursor: pointer; justify-self: start; font-family: inherit; }
+
 .definition-strip { border-block: 1px solid var(--ink); background: var(--acid); }
 .definition-grid { display: grid; grid-template-columns: 1fr 1fr; }
 .definition-grid p { margin: 0; padding: 25px 28px 25px 0; font-size: 13px; line-height: 1.55; }
@@ -248,6 +260,7 @@ a:focus-visible, summary:focus-visible { outline: 3px solid #6e9100; outline-off
 }
 
 @media (max-width: 900px) {
+  .request-section { grid-template-columns: 1fr; gap: 32px; }
   .hero { grid-template-columns: 1fr; }
   h1 { font-size: clamp(56px, 9vw, 76px); white-space: normal; }
   .hero-title-break { display: initial; }
@@ -263,6 +276,7 @@ a:focus-visible, summary:focus-visible { outline: 3px solid #6e9100; outline-off
   .final-cta { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
+  .request-form { padding: 20px; }
   .shell { width: min(100% - 28px, 1180px); }
   .nav { height: 72px; }
   .nav-links > a:not(.nav-cta) { display: none; }

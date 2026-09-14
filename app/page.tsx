@@ -1,3 +1,5 @@
+import RequestForm from './request-form';
+
 const DISCUSSION_URL =
   'https://github.com/NVlabs/kda/issues/new?title=%5Bwishlist%5D%20';
 const REQUESTS_URL =
@@ -280,7 +282,7 @@ export default function Home() {
             <p className="hero-affiliation">Part of NVIDIA agentic CUDA and RSI efforts</p>
           </div>
           <div className="hero-actions">
-            <a className="button button-primary" href={SUBMISSION_GUIDE_URL}>
+            <a className="button button-primary" href="#submit">
               Submit a request <span aria-hidden="true">↗</span>
             </a>
             <a className="button button-quiet" href={DISCUSSION_URL}>
@@ -364,6 +366,8 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <RequestForm />
 
       <section className="section shell achievements-section" id="achievements">
         <div className="achievements-intro">
@@ -471,7 +475,7 @@ export default function Home() {
         </div>
         <div className="final-actions">
           <p>Bring the definition, real workloads, and your best-known baseline implementation.</p>
-          <a className="button button-acid" href={SUBMISSION_GUIDE_URL}>Submit a request <span aria-hidden="true">↗</span></a>
+          <a className="button button-acid" href="#submit">Submit a request <span aria-hidden="true">↗</span></a>
           <a className="final-secondary" href={DISCUSSION_URL}>Discuss an idea <span aria-hidden="true">→</span></a>
           <a className="final-secondary" href={REQUESTS_URL}>Browse and upvote requests <span aria-hidden="true">→</span></a>
         </div>
