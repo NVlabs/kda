@@ -1,5 +1,5 @@
 const DISCUSSION_URL =
-  'https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml';
+  'https://github.com/NVlabs/kda/issues/new?title=%5Bwishlist%5D%20';
 const REQUESTS_URL =
   'https://github.com/NVlabs/kda/pulls?q=is%3Apr%20base%3Awishlist';
 const REPOSITORY_URL = 'https://github.com/NVlabs/kda';

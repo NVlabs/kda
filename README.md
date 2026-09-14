@@ -51,7 +51,7 @@ Pushes to `pages` run `.github/workflows/deploy-pages.yml`, which builds the sta
 ## Submission workflow
 
 1. Follow the [submission guide](https://github.com/NVlabs/kda/tree/wishlist#submit). Create a branch from `wishlist` in your fork and copy `example/` to `requests/<github-username>-<kernel-name>/`. Define the task in FlashInfer Trace, a reproducible format that describes the reference implementation, input and output contract, correctness requirements, and representative workloads. Include the best-known comparison implementation in `baseline.py`; `benchmark.py` is optional, with `flashinfer-bench` used when it is absent.
-2. Submit a PR directly to `NVlabs/kda:wishlist`; no issue or assigned number is needed. Keep the request details in its `README.md` and the PR description brief. Currently, KDA only supports NVIDIA B200 and B300 GPUs. If you need help preparing the materials, [discuss an idea](https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml); complete files are optional for that discussion.
+2. Submit a PR directly to `NVlabs/kda:wishlist`; no issue or assigned number is needed. The guide's PR link selects the [wishlist PR template](https://github.com/NVlabs/kda/blob/main/.github/PULL_REQUEST_TEMPLATE/wishlist.md). Fill in the request directory, a short summary, and target hardware; keep the full details in the request README. Currently, KDA only supports NVIDIA B200 and B300 GPUs. If you need help preparing the materials, [discuss an idea](https://github.com/NVlabs/kda/issues/new?title=%5Bwishlist%5D%20) in a regular issue; complete files are optional for that discussion.
 3. Community members add thumbs-up reactions to the PR description and use comments to contribute new workload evidence or implementation context.
 4. The team reviews the task. Merging records the request; it does not mean optimization is complete. Progress and result links remain on the original PR after merging. Selected requests enter a measured loop of research, implementation, correctness validation, performance profiling, and candidate selection.
 5. Completed tasks may return an optimized kernel, benchmark comparisons, reproduction instructions, environment details, design notes, known limitations, and an upstream-ready contribution.
@@ -65,7 +65,7 @@ Submission does not guarantee selection. The program prioritizes tasks that affe
 - `app/` contains the page structure, copy, metadata, and styles.
 - `public/og.png` is the branded social-sharing preview image.
 - `.github/workflows/deploy-pages.yml` builds and deploys this `pages` branch.
-- [Issue forms and settings](https://github.com/NVlabs/kda/tree/main/.github/ISSUE_TEMPLATE) are maintained on the default `main` branch so GitHub can load them.
+- The [wishlist PR template](https://github.com/NVlabs/kda/blob/main/.github/PULL_REQUEST_TEMPLATE/wishlist.md) and [issue chooser settings](https://github.com/NVlabs/kda/tree/main/.github/ISSUE_TEMPLATE) are maintained on the default `main` branch so GitHub can load them.
 - [The `wishlist` branch](https://github.com/NVlabs/kda/tree/wishlist) contains submission instructions and contributed request materials.
 - `.openai/hosting.json` contains the logical website-hosting configuration.
 
