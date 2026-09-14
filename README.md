@@ -2,7 +2,7 @@
 
 Submit reproducible kernel requests for Kernel Design Agents (KDA).
 
-[Submit a request](#submit) · [Browse requests](https://github.com/NVlabs/kda/pulls?q=is%3Apr%20base%3Awishlist) · [Discuss an idea](https://github.com/NVlabs/kda/issues/new?template=kernel-request.yml) · [Example](example/)
+[Submit a request](#submit) · [Browse requests](https://github.com/NVlabs/kda/pulls?q=is%3Apr%20base%3Awishlist) · [Discuss an idea](https://github.com/NVlabs/kda/issues/new?title=%5Bwishlist%5D%20) · [Example](example/)
 
 Have the files ready? Submit a pull request (PR) directly to `wishlist`. No issue is required. If you need help shaping the request, use **Discuss an idea** first; complete files are optional for that discussion.
 
@@ -47,7 +47,7 @@ Use a distinct definition name and fresh workload identifiers when copying the e
 1. [Fork the repository](https://github.com/NVlabs/kda/fork). Clear **Copy the main branch only** so your fork includes `wishlist`, then create your working branch from `wishlist`.
 2. Copy `example/` to `requests/<github-username>-<kernel-name>/` and replace the example with your request. Document the project impact, contract, correctness tolerances, representative workloads, baseline source/version, dependencies, licenses, and commands in its `README.md`. Target NVIDIA B200, NVIDIA B300, or both, and include actual validation results for the selected hardware.
 3. Commit and push the files to your fork, signing off each commit with `git commit -s`. You can also upload a prepared `requests/` folder from your working branch's repository root using GitHub's **Add file → Upload files**. For web commits, add `Signed-off-by: Your Name <your@email.com>` to the commit description, following the [contribution process](https://github.com/NVlabs/kda/blob/main/CONTRIBUTING.md#signing-off-your-work).
-4. Open a PR with **base repository: `NVlabs/kda`**, **base: `wishlist`**, and your fork's working branch as the head. Use a title such as `[wishlist] RMSNorm for <project>`. Keep the description short and point to your request directory; the files already contain the details. Link an existing discussion if relevant, but you do not need to create an issue.
+4. Open a [wishlist PR](https://github.com/NVlabs/kda/compare/wishlist...wishlist?quick_pull=1&template=wishlist.md&title=%5Bwishlist%5D%20). Choose **compare across forks**, then select your fork and working branch as the head; keep **base repository: `NVlabs/kda`** and **base: `wishlist`**. The link selects the [wishlist PR template](https://github.com/NVlabs/kda/blob/main/.github/PULL_REQUEST_TEMPLATE/wishlist.md) and starts the title with `[wishlist] `. Fill in the request directory, a short summary, and target hardware. Full details stay in your request README; an existing discussion link is optional.
 
 Check that the PR contains only the intended request files. Respond to review by pushing updates to the same branch; the PR updates automatically.
 
@@ -61,4 +61,4 @@ Merging a PR records the request in the wishlist; it does not mean an optimized 
 
 Follow the [contribution process](https://github.com/NVlabs/kda/blob/main/CONTRIBUTING.md) and [project license](https://github.com/NVlabs/kda/blob/main/LICENSE). First-party code uses Apache-2.0 and documentation uses Creative Commons Attribution 4.0; preserve the licenses and attribution of any third-party material. Keep generated results, caches, and large datasets outside this branch.
 
-Issue forms are maintained on [`main`](https://github.com/NVlabs/kda/tree/main/.github/ISSUE_TEMPLATE). Website source is on [`pages`](https://github.com/NVlabs/kda/tree/pages).
+The [wishlist PR template](https://github.com/NVlabs/kda/blob/main/.github/PULL_REQUEST_TEMPLATE/wishlist.md) and issue chooser settings are maintained on `main`. Website source is on [`pages`](https://github.com/NVlabs/kda/tree/pages).
