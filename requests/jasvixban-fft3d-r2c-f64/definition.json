@@ -1,0 +1,51 @@
+{
+  "name": "fft3d_r2c_halfspec_f64",
+  "op_type": "fft3d_r2c",
+  "description": "Float64 variant of fft3d_r2c_halfspec_f32: batch-of-1 3D real-to-complex FFT over a C-contiguous [nz, ny, nx] float64 grid (x fastest-varying). Output is the packed Hermitian half-spectrum as interleaved float64 [nz, ny, nx//2+1, 2] with x-row stride exactly nx//2+1 (no even-row padding), unnormalized. Targets double-precision scientific spectral solvers: 24..256 per axis, anisotropic shapes allowed.",
+  "axes": {
+    "nz": {
+      "type": "var"
+    },
+    "ny": {
+      "type": "var"
+    },
+    "nx": {
+      "type": "var"
+    },
+    "nf": {
+      "type": "var"
+    },
+    "reim": {
+      "type": "const",
+      "value": 2
+    }
+  },
+  "inputs": {
+    "input": {
+      "shape": [
+        "nz",
+        "ny",
+        "nx"
+      ],
+      "dtype": "float64"
+    }
+  },
+  "outputs": {
+    "output": {
+      "shape": [
+        "nz",
+        "ny",
+        "nf",
+        "reim"
+      ],
+      "dtype": "float64"
+    }
+  },
+  "constraints": [
+    "nz >= 8",
+    "ny >= 8",
+    "nx >= 16",
+    "nf == nx // 2 + 1"
+  ],
+  "reference": "# SPDX-License-Identifier: Apache-2.0\nimport torch\n\n\ndef run(input):\n    \"\"\"3D real-to-complex FFT, unnormalized, packed Hermitian half-spectrum output.\n\n    input:  float64 [nz, ny, nx], x fastest-varying (C-contiguous).\n    return: float64 [nz, ny, nx//2+1, 2] interleaved (re, im), row stride\n            exactly nx//2+1 with no even-row padding, unnormalized.\n    \"\"\"\n    x = input.to(torch.float64)\n    out = torch.fft.rfftn(x, norm=\"backward\")            # half spectrum on last dim\n    return torch.view_as_real(out).to(torch.float64)\n"
+}
