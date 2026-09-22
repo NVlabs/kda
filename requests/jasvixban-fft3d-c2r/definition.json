@@ -1,0 +1,51 @@
+{
+  "name": "fft3d_c2r_halfspec_f32",
+  "op_type": "fft3d_c2r",
+  "description": "Batch-of-1 inverse 3D transform of a packed Hermitian half-spectrum. Input is interleaved float32 [nz, ny, nf, 2] (nf = nx//2 + 1, x-row stride exactly nf, no even-row padding), interpreted with the cuFFT C2R / torch.fft.irfftn convention. Output is the real-space float32 grid [nz, ny, nx], unnormalized (forward+inverse round-trip scales by N = nz*ny*nx). Companion of fft3d_r2c_halfspec_f32.",
+  "axes": {
+    "nz": {
+      "type": "var"
+    },
+    "ny": {
+      "type": "var"
+    },
+    "nx": {
+      "type": "var"
+    },
+    "nf": {
+      "type": "var"
+    },
+    "reim": {
+      "type": "const",
+      "value": 2
+    }
+  },
+  "inputs": {
+    "input": {
+      "shape": [
+        "nz",
+        "ny",
+        "nf",
+        "reim"
+      ],
+      "dtype": "float32"
+    }
+  },
+  "outputs": {
+    "output": {
+      "shape": [
+        "nz",
+        "ny",
+        "nx"
+      ],
+      "dtype": "float32"
+    }
+  },
+  "constraints": [
+    "nz >= 8",
+    "ny >= 8",
+    "nx >= 16",
+    "nf == nx // 2 + 1"
+  ],
+  "reference": "# SPDX-License-Identifier: Apache-2.0\nimport torch\n\n\ndef run(input):\n    \"\"\"Inverse of the packed half-spectrum 3D transform, unnormalized.\n\n    input:  float32 [nz, ny, nx//2+1, 2] interleaved (re, im), the packed\n            Hermitian half-spectrum produced by the forward transform.\n    return: float32 [nz, ny, nx] real-space tensor, unnormalized\n            (forward then inverse scales energy by N = nz*ny*nx).\n\n    The transform convention matches cuFFT C2R and torch.fft.irfftn: the\n    array is interpreted as the k_x >= 0 half of a Hermitian spectrum and\n    implicitly completed; the imaginary parts of the k_x = 0 and (where\n    present) k_x = Nyquist planes are ignored.\n    \"\"\"\n    z = torch.view_as_complex(input.to(torch.float64))\n    nz, ny, nf = z.shape\n    out = torch.fft.irfftn(z, s=(nz, ny, 2 * (nf - 1)), norm=\"forward\")\n    return out.to(torch.float32)\n"
+}
