@@ -1,4 +1,11 @@
-# KDA forward kernels for NVIDIA Blackwell
+# KDA forward and backward kernels for NVIDIA Blackwell
+
+This repository provides three Kimi Delta Attention (KDA) forward implementations and a
+[packed TIRx backward kernel](kda-tirx-bwd/README.md). The backward kernel targets B200
+(`sm_100a`) and consumes FLA's saved backward inputs; its API and checks are documented
+in [`kda-tirx-bwd/README.md`](kda-tirx-bwd/README.md).
+
+## Forward kernels
 
 Three implementations of the Kimi Delta Attention (KDA) forward pass
 (chunked, per-channel-gated delta rule; K3 gate `-5 * sigmoid(exp(A_log) * (g + dt_bias))`,
@@ -17,7 +24,7 @@ Inputs: bf16 `q/k/v/g [1, T, H, 128]`, bf16 beta logits `[1, T, H]`, fp32 `A_log
 fp32 `dt_bias [H*128]`, fp32 `initial_state [N, H, 128, 128]`, int64 `cu_seqlens [N+1]` or `None`.
 Outputs: bf16 `output [1, T, H, 128]`, fp32 `final_state [N, H, 128, 128]`.
 
-## Results (NVIDIA B300; CuTe and TIRx 2026-09-24, PTX 2026-09-28)
+## Forward results (NVIDIA B300; CuTe and TIRx 2026-09-24, PTX 2026-09-28)
 
 Measured with the KDA-internal judge (`bench_kda_forward_standalone.py`): speedup over
 FlashKDA 7afb9f4's fused CUTLASS forward, executed live on every workload; 8192 total tokens.
@@ -78,7 +85,7 @@ hf download humanfia-lab/kda-datasets --repo-type dataset --local-dir data \
 - The split-sequence state handoff clears its flags on the launch stream before every launch,
   so eager calls, CUDA graph captures and replays can be mixed in any order.
 
-## TIRx: provenance
+## TIRx forward: provenance
 
 jinhongyii's TIRx gist 4c50fafe (a fused persistent packed-varlen kernel plus an embedded
 two-kernel split-concurrent route for single sequences, derived from the tirx-kernels
@@ -94,40 +101,20 @@ speed are unchanged):
   the 160-entry SMEM table are read from global memory, the sequence-count cap is removed,
   and token offsets are packed into 21 bits instead of 16.
 
-### TIRx backward
+## TIRx backward
 
-[`kda-tirx-bwd/kda_backward_packed.py`](kda-tirx-bwd/kda_backward_packed.py) is imported from
-the [TIRx-kernels packed KDA backward kernel](https://github.com/mlc-ai/TIRx-kernels/blob/8b6ed130a330e522a22b62eed2fa15ed487acec0/tirx_kernels/kda/kda_backward_packed.py).
-It targets B200 (`sm_100a`) and supports B=1, K=V=128, chunk size 64, grouped value heads
-(`Hv % Hqk == 0`) and packed sequences with partial trailing chunks.
+[`kda-tirx-bwd/`](kda-tirx-bwd/README.md) contains the packed TIRx KDA backward kernel from
+[`humanfia/kda-for-kda-release` @ `15d2cf6`](https://github.com/humanfia/kda-for-kda-release/commit/15d2cf6780a5f7b20babb3483dde03b1cfc7cc09).
+It targets B200 (`sm_100a`) with B=1, K=V=128, chunk size 64, grouped value heads
+(`Hv % Hqk == 0`), and packed sequences with partial trailing chunks.
 
-The offline builder's default CTA count now follows the detected SM count, matching
-runtime setup and benchmark preparation. On a 148-SM B200, the fused path builds its
-schedule for up to 148 CTAs. The upstream 152-CTA / 768-chain tuned schedule is retained
-and selected only when both counts match.
+The entry point is `setup(data, B, T, Hqk) -> launch`. It consumes FLA's saved tensors and
+a **K-first** initial state, then writes caller-provided `dq`, `dk`, `dv`, `db`, `dg`,
+and `dh0` buffers. The default CTA count follows the detected SM count; the upstream
+152-CTA / 768-chain schedule is selected only when both counts match.
 
-The entry point is `setup(data, B, T, Hqk) -> launch`. It takes FLA's saved backward inputs:
-L2-normalized `q/k`, `v`, activated `beta`, saved `Aqk/Akk`, chunk-local cumulative base-2
-log gates `g`, a **K-first** `initial_state`, upstream `do/dht`, `scale`, `chunk_size`, and
-`cu_seqlens`. The caller supplies contiguous output buffers `dq`, `dk`, `dv`, `db`, `dg`
-and `dh0` in `data`; `launch()` writes those buffers. `setup` compiles, allocates scratch,
-and runs once before returning. This uses a different input/state contract from the
-forward `kda-tirx/kernel.py`; `bench.py` measures the forward kernels only.
-
-For a small correctness check against FLA, using the existing project dependencies:
-
-```bash
-PYTHONPATH=kda-tirx-bwd uv run python - <<'PY'
-import kda_backward_packed as bwd
-
-bwd.run_test(num_qk_heads=8, num_v_heads=8, seq_lens=(128, 128))
-bwd.run_test(num_qk_heads=2, num_v_heads=4, seq_lens=(129, 79))
-PY
-```
-
-The module also retains upstream's `prepare_data`, `CONFIGS`, and `run_bench` helpers.
-Copyright (c) 2026 TIRx authors. This file is licensed under
-[Apache-2.0](kda-tirx-bwd/LICENSE-Apache-2.0).
+See the [backward README](kda-tirx-bwd/README.md) for the input contract, setup example,
+correctness checks, and benchmark helpers. The root `bench.py` measures forward kernels.
 
 ## PTX: provenance and changes
 
@@ -172,8 +159,8 @@ Changes from the source branch:
 
 ## Environment
 
-All three kernels, the FlashKDA baseline and the benchmark share one uv environment, pinned in
-`pyproject.toml` / `uv.lock`:
+The forward and backward kernels, the FlashKDA baseline and the benchmark share one uv
+environment, pinned in `pyproject.toml` / `uv.lock`:
 
 | component | version | used by |
 |---|---|---|
@@ -227,7 +214,7 @@ cache. Notes:
 uv run python -c "import cutlass, tvm, tirx_kernels.tirx_lite, flash_kda, fla; print('ok', cutlass.__version__, tvm.__version__)"
 ```
 
-## Benchmark
+## Forward benchmark
 
 ```bash
 uv run python bench.py cute    # or: tirx, ptx, or a path to another kernel.py
@@ -244,7 +231,7 @@ A kernel passed by path must expose `run(...)` with the signature above and may 
 `prepare(...) -> launch`, which is then planned once per workload and only `launch()` is
 timed.
 
-## Supported inputs
+## Forward supported inputs
 
 Head size 128, bf16 activations and an fp32 state; tested with H = 32, 64 and 96, up to
 170001 tokens in one sequence and 300 packed sequences. TIRx requires `H % 8 == 0` and
@@ -265,4 +252,5 @@ documents each cheat and what a verifier needs to catch them. Do not use it.
 ## License
 
 MIT, see [LICENSE](LICENSE), except `kda-tirx-bwd/kda_backward_packed.py`, which is
-licensed under [Apache-2.0](kda-tirx-bwd/LICENSE-Apache-2.0).
+Copyright (c) 2026 TIRx authors and licensed under
+[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0).
