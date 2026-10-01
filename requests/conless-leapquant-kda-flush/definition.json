@@ -1,0 +1,174 @@
+{
+  "name": "leapquant_kda_flush_r4_int8_h32_v128_k128",
+  "op_type": "leapquant_kda_flush",
+  "description": "LeapQuant window flush (arXiv:2609.38166) for Kimi Delta Attention (per-key-channel gate): at the end of a 16-token window, rebuild each head's V x K fp32 recurrent state from its quantized checkpoint (4 fp16 Compensator Tokens + smoothed int8 residual) decayed per channel and the window's 16 buffered rank-1 updates with their per-channel decay histories, then re-quantize it (one round of subspace iteration for the new Compensator Tokens, smoothing scales and int8 codes for the residual). Correctness is judged on the decoded state (see the request README), not elementwise.",
+  "axes": {
+    "batch_size": {
+      "type": "var"
+    },
+    "num_heads": {
+      "type": "const",
+      "value": 32
+    },
+    "value_dim": {
+      "type": "const",
+      "value": 128
+    },
+    "key_dim": {
+      "type": "const",
+      "value": 128
+    },
+    "window": {
+      "type": "const",
+      "value": 16
+    },
+    "rank": {
+      "type": "const",
+      "value": 4
+    }
+  },
+  "inputs": {
+    "codes": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim",
+        "key_dim"
+      ],
+      "dtype": "int8"
+    },
+    "s_k": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "float32"
+    },
+    "s_v": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim"
+      ],
+      "dtype": "float32"
+    },
+    "u": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "rank",
+        "key_dim"
+      ],
+      "dtype": "float16"
+    },
+    "q": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "rank",
+        "value_dim"
+      ],
+      "dtype": "float16"
+    },
+    "kbuf": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window",
+        "key_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "ubuf": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window",
+        "value_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "gbuf": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window",
+        "key_dim"
+      ],
+      "dtype": "float16"
+    },
+    "w": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window"
+      ],
+      "dtype": "float32"
+    },
+    "pcum": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "float32"
+    },
+    "q0": {
+      "shape": [
+        "value_dim",
+        "rank"
+      ],
+      "dtype": "float32"
+    }
+  },
+  "outputs": {
+    "codes_new": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim",
+        "key_dim"
+      ],
+      "dtype": "int8"
+    },
+    "s_k_new": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "float32"
+    },
+    "s_v_new": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim"
+      ],
+      "dtype": "float32"
+    },
+    "u_new": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "rank",
+        "key_dim"
+      ],
+      "dtype": "float16"
+    },
+    "q_new": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "rank",
+        "value_dim"
+      ],
+      "dtype": "float16"
+    }
+  },
+  "constraints": [
+    "batch_size >= 1"
+  ],
+  "reference": "# SPDX-License-Identifier: Apache-2.0\nimport torch\n\nQMAX = 127.0\nEPS = 1e-12\n\n\ndef _mgs(m):\n    \"\"\"Modified Gram-Schmidt on the columns of m, projections applied twice (\"twice is enough\"): a column that is\n    numerically dependent on the previous ones (a rank-deficient head) still comes out orthogonal to them.\"\"\"\n    cols = []\n    for j in range(m.shape[-1]):\n        v = m[..., j]\n        for _ in range(2):\n            for c in cols:\n                v = v - c * (c * v).sum(-1, keepdim=True)\n        cols.append(v / v.norm(dim=-1, keepdim=True).clamp_min(1e-30))\n    return torch.stack(cols, -1)\n\n\ndef run(codes, s_k, s_v, u, q, kbuf, ubuf, gbuf, w, pcum, q0):\n    \"\"\"LeapQuant window flush for Kimi Delta Attention (per-key-channel gate): fold the buffered updates of one window into a new\n    quantized checkpoint.\n\n    codes int8 [B, H, V, K], s_k f32 [B, H, K], s_v f32 [B, H, V]: smoothed int8 residual of the old checkpoint\n    u f16 [B, H, R, K], q f16 [B, H, R, V]: the R Compensator Tokens of the old checkpoint (rank-R part = q^T u)\n    kbuf bf16 [B, H, L, K], ubuf bf16 [B, H, L, V]: the window's buffered updates; w f32 [B, H, L]: their weights\n    gbuf f16 [B, H, L, K]: per-channel decay factor of the step that appended each entry; pcum f32 [B, H, K]: log-gate summed\n        over the window (the checkpoint's decay is exp(pcum))\n    q0 f32 [V, R]: fixed start of the subspace iteration\n    Returns the new (codes, s_k, s_v, u, q).  fp32 arithmetic; the order of operations is not part of the contract.\n    \"\"\"\n    # 1. rebuild the fp32 state: S = (q^T u + dequant(codes)) diag(exp(pcum)) + sum_j w_j ubuf_j (kbuf_j * D_j)^T     [V, K]\n    #    with D_j = prod_{i > j} gbuf_i (the decay entry j has seen since it was appended)\n    s_old = torch.einsum(\"bhrv,bhrk->bhvk\", q.float(), u.float())\n    s_old = s_old + codes.float() * (s_k[..., None, :] / QMAX) * s_v[..., :, None]\n    after = torch.flip(torch.cumprod(torch.flip(gbuf.float(), [-2]), -2), [-2])                 # prod_{i >= j}\n    D = torch.cat([after[..., 1:, :], torch.ones_like(after[..., :1, :])], -2)                  # prod_{i > j}\n    s = s_old * torch.exp(pcum)[..., None, :] + torch.einsum(\"bhj,bhjv,bhjk->bhvk\", w, ubuf.float(), kbuf.float() * D)\n    # 2. Compensator Tokens: ONE round of subspace iteration from q0, stored as fp16\n    x = s.transpose(-1, -2)                      # [K, V]\n    qk = _mgs(x @ q0)                            # [K, R]\n    qv = _mgs(x.transpose(-1, -2) @ qk)          # [V, R], orthonormal columns\n    uk = x @ qv                                  # [K, R]\n    u_new = uk.transpose(-1, -2).to(torch.float16)\n    q_new = qv.transpose(-1, -2).to(torch.float16)\n    # 3. residual, smoothing scales (column scale = sqrt of the mean |E| over rows, row scale = max of the smoothed row), int8\n    e = s - torch.einsum(\"bhrv,bhrk->bhvk\", q_new.float(), u_new.float())\n    sk = e.abs().mean(-2).sqrt().clamp_min(EPS)\n    sv = (e.abs() / sk[..., None, :]).amax(-1).clamp_min(EPS)\n    c = torch.round(e / (sk[..., None, :] * sv[..., :, None]) * QMAX).clamp(-QMAX, QMAX).to(torch.int8)\n    return c, sk, sv, u_new, q_new\n"
+}

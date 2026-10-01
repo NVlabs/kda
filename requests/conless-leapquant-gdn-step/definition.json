@@ -1,0 +1,215 @@
+{
+  "name": "leapquant_gdn_step_r4_int8_h32_v128_k128",
+  "op_type": "leapquant_gdn_step",
+  "description": "LeapQuant decode step (arXiv:2609.38166) of a gated-delta-rule linear-attention layer: the recurrent state is the window's quantized checkpoint (4 fp16 Compensator Tokens + smoothed int8 residual) plus up to 15 buffered rank-1 updates; the step computes this token's output and its new rank-1 update from them without materialising or writing back the state. Correctness is judged per head with a relative tolerance (see the request README).",
+  "axes": {
+    "batch_size": {
+      "type": "var"
+    },
+    "num_heads": {
+      "type": "const",
+      "value": 32
+    },
+    "num_key_heads": {
+      "type": "const",
+      "value": 16
+    },
+    "value_dim": {
+      "type": "const",
+      "value": 128
+    },
+    "key_dim": {
+      "type": "const",
+      "value": 128
+    },
+    "window": {
+      "type": "const",
+      "value": 16
+    },
+    "rank": {
+      "type": "const",
+      "value": 4
+    }
+  },
+  "inputs": {
+    "codes": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim",
+        "key_dim"
+      ],
+      "dtype": "int8"
+    },
+    "s_k": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "float32"
+    },
+    "s_v": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim"
+      ],
+      "dtype": "float32"
+    },
+    "u": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "rank",
+        "key_dim"
+      ],
+      "dtype": "float16"
+    },
+    "q": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "rank",
+        "value_dim"
+      ],
+      "dtype": "float16"
+    },
+    "kbuf": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window",
+        "key_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "ubuf": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window",
+        "value_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "w": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window"
+      ],
+      "dtype": "float32"
+    },
+    "p": {
+      "shape": [
+        "batch_size",
+        "num_heads"
+      ],
+      "dtype": "float32"
+    },
+    "h": {
+      "shape": [
+        "batch_size",
+        "num_heads"
+      ],
+      "dtype": "int32"
+    },
+    "qx": {
+      "shape": [
+        "batch_size",
+        "num_key_heads",
+        "key_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "kx": {
+      "shape": [
+        "batch_size",
+        "num_key_heads",
+        "key_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "vx": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "a": {
+      "shape": [
+        "batch_size",
+        "num_heads"
+      ],
+      "dtype": "bfloat16"
+    },
+    "b": {
+      "shape": [
+        "batch_size",
+        "num_heads"
+      ],
+      "dtype": "bfloat16"
+    },
+    "A_log": {
+      "shape": [
+        "num_heads"
+      ],
+      "dtype": "float32"
+    },
+    "dt_bias": {
+      "shape": [
+        "num_heads"
+      ],
+      "dtype": "float32"
+    }
+  },
+  "outputs": {
+    "o": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "k_row": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "u_row": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "w_new": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window"
+      ],
+      "dtype": "float32"
+    },
+    "p_new": {
+      "shape": [
+        "batch_size",
+        "num_heads"
+      ],
+      "dtype": "float32"
+    }
+  },
+  "constraints": [
+    "batch_size >= 1",
+    "num_heads % num_key_heads == 0"
+  ],
+  "reference": "# SPDX-License-Identifier: Apache-2.0\nimport torch\n\nQMAX = 127.0\n\n\ndef run(codes, s_k, s_v, u, q, kbuf, ubuf, w, p, h, qx, kx, vx, a, b, A_log, dt_bias):\n    \"\"\"LeapQuant decode step of one gated-delta-rule layer, without writing the state back.\n\n    codes int8 [B, H, V, K], s_k f32 [B, H, K], s_v f32 [B, H, V]: smoothed int8 residual of the window's checkpoint\n    u f16 [B, H, R, K], q f16 [B, H, R, V]: the R Compensator Tokens (rank-R part of the checkpoint = q^T u)\n    kbuf bf16 [B, H, L, K], ubuf bf16 [B, H, L, V], w f32 [B, H, L], p f32 [B, H], h int32 [B, H]: the window's buffered\n        updates so far (entries j < h are live, w_j = 0 for j >= h, 0 <= h < L) and the gate product since the checkpoint\n    qx, kx bf16 [B, HK, K], vx bf16 [B, H, V]: this token's query / key (shared by H // HK heads) and value\n    a, b bf16 [B, H]: gate and beta pre-activations; A_log, dt_bias f32 [H]\n    Returns o bf16 [B, H, V], the new buffered update (k_row bf16 [B, H, K], u_row bf16 [B, H, V]) for entry h,\n    the decayed weights w_new f32 [B, H, L] (w_new[h] = 1) and the gate product p_new f32 [B, H].\n    \"\"\"\n    B, H, V, K = codes.shape\n    L = kbuf.shape[-2]\n    rep = H // qx.shape[1]\n    qf = qx.float().repeat_interleave(rep, 1); kf = kx.float().repeat_interleave(rep, 1)\n    kn = kf * torch.rsqrt((kf * kf).sum(-1, keepdim=True) + 1e-6)\n    qn = qf * torch.rsqrt((qf * qf).sum(-1, keepdim=True) + 1e-6) * K ** -0.5\n    g = a.float() + dt_bias\n    sp = torch.where(g <= 20.0, torch.log1p(torch.exp(g)), g)\n    at = torch.exp(-torch.exp(A_log) * sp)                                  # this step's decay\n    beta = torch.sigmoid(b.float()).to(torch.bfloat16).float()               # beta is carried in bf16\n    pn = p * at\n    j = torch.arange(L, device=w.device)\n    wd = w * torch.where(j < h[..., None], at[..., None], torch.ones_like(w))   # decayed weights of the live entries\n    # the state before this token's update: S = pn * (q^T u + dequant(codes)) + sum_j wd_j ubuf_j kbuf_j^T   [V, K]\n    s0 = torch.einsum(\"bhrv,bhrk->bhvk\", q.float(), u.float()) + codes.float() * (s_k / QMAX)[..., None, :] * s_v[..., :, None]\n    s = pn[..., None, None] * s0 + torch.einsum(\"bhj,bhjv,bhjk->bhvk\", wd, ubuf.float(), kbuf.float())\n    # gated delta rule: u = beta (v - S kn), y = (S + u kn^T) qn\n    upd = beta[..., None] * (vx.float() - torch.einsum(\"bhvk,bhk->bhv\", s, kn))\n    y = torch.einsum(\"bhvk,bhk->bhv\", s, qn) + (kn * qn).sum(-1, keepdim=True) * upd\n    w_new = torch.where(j == h[..., None], torch.ones_like(wd), wd)\n    return y.to(torch.bfloat16), kn.to(torch.bfloat16), upd.to(torch.bfloat16), w_new, pn\n"
+}

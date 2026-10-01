@@ -1,0 +1,231 @@
+{
+  "name": "leapquant_kda_step_r4_int8_h32_v128_k128",
+  "op_type": "leapquant_kda_step",
+  "description": "LeapQuant decode step (arXiv:2609.38166) of a Kimi Delta Attention layer (per-key-channel gate): the recurrent state is the window's quantized checkpoint (4 fp16 Compensator Tokens + smoothed int8 residual) decayed per channel, plus up to 15 buffered rank-1 updates with per-channel decay histories; the step computes this token's output and its new rank-1 update without materialising or writing back the state. Correctness is judged per head with a relative tolerance (see the request README).",
+  "axes": {
+    "batch_size": {
+      "type": "var"
+    },
+    "num_heads": {
+      "type": "const",
+      "value": 32
+    },
+    "value_dim": {
+      "type": "const",
+      "value": 128
+    },
+    "key_dim": {
+      "type": "const",
+      "value": 128
+    },
+    "window": {
+      "type": "const",
+      "value": 16
+    },
+    "rank": {
+      "type": "const",
+      "value": 4
+    }
+  },
+  "inputs": {
+    "codes": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim",
+        "key_dim"
+      ],
+      "dtype": "int8"
+    },
+    "s_k": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "float32"
+    },
+    "s_v": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim"
+      ],
+      "dtype": "float32"
+    },
+    "u": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "rank",
+        "key_dim"
+      ],
+      "dtype": "float16"
+    },
+    "q": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "rank",
+        "value_dim"
+      ],
+      "dtype": "float16"
+    },
+    "kbuf": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window",
+        "key_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "ubuf": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window",
+        "value_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "gbuf": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window",
+        "key_dim"
+      ],
+      "dtype": "float16"
+    },
+    "w": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window"
+      ],
+      "dtype": "float32"
+    },
+    "pcum": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "float32"
+    },
+    "h": {
+      "shape": [
+        "batch_size",
+        "num_heads"
+      ],
+      "dtype": "int32"
+    },
+    "qx": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "kx": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "vx": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "a": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "b": {
+      "shape": [
+        "batch_size",
+        "num_heads"
+      ],
+      "dtype": "bfloat16"
+    },
+    "A_log": {
+      "shape": [
+        "num_heads"
+      ],
+      "dtype": "float32"
+    },
+    "dt_bias": {
+      "shape": [
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "float32"
+    }
+  },
+  "outputs": {
+    "o": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "k_row": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "u_row": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "value_dim"
+      ],
+      "dtype": "bfloat16"
+    },
+    "g_row": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "float16"
+    },
+    "w_new": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "window"
+      ],
+      "dtype": "float32"
+    },
+    "pcum_new": {
+      "shape": [
+        "batch_size",
+        "num_heads",
+        "key_dim"
+      ],
+      "dtype": "float32"
+    }
+  },
+  "constraints": [
+    "batch_size >= 1"
+  ],
+  "reference": "# SPDX-License-Identifier: Apache-2.0\nimport torch\n\nQMAX = 127.0\n\n\ndef run(codes, s_k, s_v, u, q, kbuf, ubuf, gbuf, w, pcum, h, qx, kx, vx, a, b, A_log, dt_bias):\n    \"\"\"LeapQuant decode step of one Kimi-Delta-Attention layer (per-key-channel gate), without writing the state back.\n\n    codes int8 [B, H, V, K], s_k f32 [B, H, K], s_v f32 [B, H, V]: smoothed int8 residual of the window's checkpoint\n    u f16 [B, H, R, K], q f16 [B, H, R, V]: the R Compensator Tokens (rank-R part of the checkpoint = q^T u)\n    kbuf bf16 [B, H, L, K], ubuf bf16 [B, H, L, V]: the window's buffered updates so far (entries j < h are live, 0 <= h < L)\n    gbuf f16 [B, H, L, K]: per-channel decay factor of the step that appended each entry (1 for entries j >= h)\n    w f32 [B, H, L]: entry weights (1 for live entries, 0 otherwise); pcum f32 [B, H, K]: log-gate summed since the checkpoint\n    qx, kx bf16 [B, H, K], vx bf16 [B, H, V]: this token's query / key / value\n    a bf16 [B, H, K]: per-channel gate pre-activation; b bf16 [B, H]: beta pre-activation; A_log f32 [H], dt_bias f32 [H, K]\n    Returns o bf16 [B, H, V]; the new buffered update for entry h: k_row bf16 [B, H, K], u_row bf16 [B, H, V], g_row f16 [B, H, K]\n    (this step's decay factor); w_new f32 [B, H, L] (w_new[h] = 1) and pcum_new f32 [B, H, K].\n    \"\"\"\n    B, H, V, K = codes.shape\n    L = kbuf.shape[-2]\n    kf = kx.float(); qf = qx.float()\n    kn = kf * torch.rsqrt((kf * kf).sum(-1, keepdim=True) + 1e-6)\n    qn = qf * torch.rsqrt((qf * qf).sum(-1, keepdim=True) + 1e-6) * K ** -0.5\n    x = a.float() + dt_bias\n    g = -torch.exp(A_log)[:, None] * torch.where(x <= 20.0, torch.log1p(torch.exp(x)), x)   # this step's log-decay, per key channel\n    en = torch.exp(g)\n    gn = pcum + g\n    pc = torch.exp(gn)                                                       # decay of the checkpoint since the window start\n    beta = torch.sigmoid(b.float()).to(torch.bfloat16).float()               # beta is carried in bf16\n    # decay of entry j at this step: en * prod_{j < i < h} gbuf_i  (entries j >= h are empty)\n    j = torch.arange(L, device=w.device)\n    e = torch.where((j[:, None] < h[..., None, None]), gbuf.float(), torch.ones_like(gbuf, dtype=torch.float32))\n    after = torch.flip(torch.cumprod(torch.flip(e, [-2]), -2), [-2])         # after[j] = prod_{i >= j} e_i\n    after = torch.cat([after[..., 1:, :], torch.ones_like(after[..., :1, :])], -2)   # prod_{i > j} e_i\n    D = en[..., None, :] * after * (j[:, None] < h[..., None, None])\n    # the state before this token's update: S = (q^T u + dequant(codes)) diag(pc) + sum_j w_j ubuf_j (kbuf_j * D_j)^T   [V, K]\n    s0 = torch.einsum(\"bhrv,bhrk->bhvk\", q.float(), u.float()) + codes.float() * (s_k / QMAX)[..., None, :] * s_v[..., :, None]\n    s = s0 * pc[..., None, :] + torch.einsum(\"bhj,bhjv,bhjk->bhvk\", w, ubuf.float(), kbuf.float() * D)\n    upd = beta[..., None] * (vx.float() - torch.einsum(\"bhvk,bhk->bhv\", s, kn))\n    y = torch.einsum(\"bhvk,bhk->bhv\", s, qn) + (kn * qn).sum(-1, keepdim=True) * upd\n    w_new = torch.where(j == h[..., None], torch.ones_like(w), w)\n    return y.to(torch.bfloat16), kn.to(torch.bfloat16), upd.to(torch.bfloat16), en.to(torch.float16), w_new, gn\n"
+}
