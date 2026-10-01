@@ -94,9 +94,3 @@ PY
 ```
 
 The root [`bench.py`](../bench.py) measures the forward implementations only.
-
-## License
-
-Copyright (c) 2026 TIRx authors. `kda_backward_packed.py` is licensed under
-[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0); its SPDX and copyright
-notices are retained in the source file.
