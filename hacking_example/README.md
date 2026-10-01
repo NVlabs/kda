@@ -77,7 +77,7 @@ in relative L2, and the kernel returns no final state at all.
 
 ## What a verifier has to do
 
-The kernels in `cute/` and `tirx/` pass a verifier built from this failure (the
+The kernels in `kda-cake-cute/` and `kda-tirx/` pass a verifier built from this failure (the
 KDA-internal `kda_forward` judge, 24/24). It does the following:
 
 - Check every returned tensor, including the final state, against a reference, with a

@@ -9,9 +9,9 @@ all following the KDA-internal `kda_forward` task ABI:
 
 | directory | language | entry point | source |
 |---|---|---|---|
-| `cute/` | CuTe DSL (Python) | `cute/kernel.py` (`run`) | humanfia/kda-for-kda `yahui-2.88x-cute` @ `dde00d0`, with three fixes (see below) |
-| `tirx/` | TIRx (TVM) | `tirx/kernel.py` (`prepare` / `run`) | humanfia/kda-tirx `20260922-b300-tune` @ `def3dfc` (judge submission `2b64c874`), with its size limits lifted (see below) |
-| `ptx/` | static PTX (sm_103a) + TVM FFI host shims | `ptx/kernel.py` (`prepare` / `run`) | humanfia/kda-for-kda `yahui-2.89x-ptx` @ `82a6a79`, with three fixes (see below) |
+| `kda-cake-cute/` | CuTe DSL (Python) | `kda-cake-cute/kernel.py` (`run`) | humanfia/kda-for-kda `yahui-2.88x-cute` @ `dde00d0`, with three fixes (see below) |
+| `kda-tirx/` | TIRx (TVM) | `kda-tirx/kernel.py` (`prepare` / `run`) | humanfia/kda-tirx `20260922-b300-tune` @ `def3dfc` (judge submission `2b64c874`), with its size limits lifted (see below) |
+| `kda-cake-ptx/` | static PTX (sm_103a) + TVM FFI host shims | `kda-cake-ptx/kernel.py` (`prepare` / `run`) | humanfia/kda-for-kda `yahui-2.89x-ptx` @ `82a6a79`, with three fixes (see below) |
 
 Inputs: bf16 `q/k/v/g [1, T, H, 128]`, bf16 beta logits `[1, T, H]`, fp32 `A_log [H]`,
 fp32 `dt_bias [H*128]`, fp32 `initial_state [N, H, 128, 128]`, int64 `cu_seqlens [N+1]` or `None`.
@@ -34,7 +34,7 @@ FlashKDA 7afb9f4's fused CUTLASS forward, executed live on every workload; 8192 
 | judge correctness (workloads, stress / exact probes, holdout, 5 real probes) | 24/24 | 24/24 | 24/24 |
 
 PTX was judged on 2026-09-28. The judge's upload whitelist has no `.ptx`, so that submission
-embeds each PTX file as a string in a `.py` file; the code is otherwise the same as `ptx/`.
+embeds each PTX file as a string in a `.py` file; the code is otherwise the same as `kda-cake-ptx/`.
 
 ### Accuracy on a real long prefill
 
@@ -112,7 +112,7 @@ log gates `g`, a **K-first** `initial_state`, upstream `do/dht`, `scale`, `chunk
 `cu_seqlens`. The caller supplies contiguous output buffers `dq`, `dk`, `dv`, `db`, `dg`
 and `dh0` in `data`; `launch()` writes those buffers. `setup` compiles, allocates scratch,
 and runs once before returning. This uses a different input/state contract from the
-forward `tirx/kernel.py`; `bench.py` measures the forward kernels only.
+forward `kda-tirx/kernel.py`; `bench.py` measures the forward kernels only.
 
 For a small correctness check against FLA, using the existing project dependencies:
 

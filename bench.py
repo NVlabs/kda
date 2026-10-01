@@ -45,7 +45,7 @@ WORKLOADS = {
     "h64-mixed_varlen": (64, MIXED),
     "h64-uniform_varlen": (64, [1024] * 8),
 }
-KERNELS = {"cute": "cute/kernel.py", "tirx": "tirx/kernel.py", "ptx": "ptx/kernel.py"}
+KERNELS = {"cute": "kda-cake-cute/kernel.py", "tirx": "kda-tirx/kernel.py", "ptx": "kda-cake-ptx/kernel.py"}
 
 
 def make_inputs(heads, seq_lens, seed, device="cuda"):

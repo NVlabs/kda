@@ -131,9 +131,9 @@ def compute(data_dir):
     def fresh():
         return [a.clone() if isinstance(a, torch.Tensor) else a for a in args]
 
-    cute = load_kernel("cute_kernel", ROOT / "cute/kernel.py")
-    tirx = load_kernel("tirx_kernel", ROOT / "tirx/kernel.py")
-    ptx = load_kernel("ptx_kernel", ROOT / "ptx/kernel.py")
+    cute = load_kernel("cute_kernel", ROOT / "kda-cake-cute/kernel.py")
+    tirx = load_kernel("tirx_kernel", ROOT / "kda-tirx/kernel.py")
+    ptx = load_kernel("ptx_kernel", ROOT / "kda-cake-ptx/kernel.py")
     fns = {"FlashKDA": lambda *a: fla_chunk_kda(True, *a), "Ours (CuTe)": cute.run, "Ours (TIRx)": tirx.run,
            "Ours (PTX)": ptx.run}
     T, H = args[0].shape[1], args[0].shape[2]
