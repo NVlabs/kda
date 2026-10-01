@@ -1,9 +1,7 @@
 # Packed TIRx KDA backward
 
 [`kda_backward_packed.py`](kda_backward_packed.py) implements the Kimi Delta Attention
-(KDA) backward pass for NVIDIA B200 (`sm_100a`). It is copied unchanged from
-[`humanfia/kda-for-kda-release` @ `15d2cf6`](https://github.com/humanfia/kda-for-kda-release/commit/15d2cf6780a5f7b20babb3483dde03b1cfc7cc09),
-where it lives under `kda-tirx/`. Its upstream source is the
+(KDA) backward pass for NVIDIA B200 (`sm_100a`). Its upstream source is the
 [TIRx-kernels packed KDA backward kernel](https://github.com/mlc-ai/TIRx-kernels/blob/8b6ed130a330e522a22b62eed2fa15ed487acec0/tirx_kernels/kda/kda_backward_packed.py).
 
 ## Supported inputs and API
