@@ -94,6 +94,41 @@ speed are unchanged):
   the 160-entry SMEM table are read from global memory, the sequence-count cap is removed,
   and token offsets are packed into 21 bits instead of 16.
 
+### TIRx backward
+
+[`kda-tirx-bwd/kda_backward_packed.py`](kda-tirx-bwd/kda_backward_packed.py) is imported from
+the [TIRx-kernels packed KDA backward kernel](https://github.com/mlc-ai/TIRx-kernels/blob/8b6ed130a330e522a22b62eed2fa15ed487acec0/tirx_kernels/kda/kda_backward_packed.py).
+It targets B200 (`sm_100a`) and supports B=1, K=V=128, chunk size 64, grouped value heads
+(`Hv % Hqk == 0`) and packed sequences with partial trailing chunks.
+
+The offline builder's default CTA count now follows the detected SM count, matching
+runtime setup and benchmark preparation. On a 148-SM B200, the fused path builds its
+schedule for up to 148 CTAs. The upstream 152-CTA / 768-chain tuned schedule is retained
+and selected only when both counts match.
+
+The entry point is `setup(data, B, T, Hqk) -> launch`. It takes FLA's saved backward inputs:
+L2-normalized `q/k`, `v`, activated `beta`, saved `Aqk/Akk`, chunk-local cumulative base-2
+log gates `g`, a **K-first** `initial_state`, upstream `do/dht`, `scale`, `chunk_size`, and
+`cu_seqlens`. The caller supplies contiguous output buffers `dq`, `dk`, `dv`, `db`, `dg`
+and `dh0` in `data`; `launch()` writes those buffers. `setup` compiles, allocates scratch,
+and runs once before returning. This uses a different input/state contract from the
+forward `tirx/kernel.py`; `bench.py` measures the forward kernels only.
+
+For a small correctness check against FLA, using the existing project dependencies:
+
+```bash
+PYTHONPATH=kda-tirx-bwd uv run python - <<'PY'
+import kda_backward_packed as bwd
+
+bwd.run_test(num_qk_heads=8, num_v_heads=8, seq_lens=(128, 128))
+bwd.run_test(num_qk_heads=2, num_v_heads=4, seq_lens=(129, 79))
+PY
+```
+
+The module also retains upstream's `prepare_data`, `CONFIGS`, and `run_bench` helpers.
+Copyright (c) 2026 TIRx authors. This file is licensed under
+[Apache-2.0](kda-tirx-bwd/LICENSE-Apache-2.0).
+
 ## PTX: provenance and changes
 
 The static PTX forward implementation of kda-for-kda `yahui-2.89x-ptx`. Its latest commit
@@ -229,4 +264,5 @@ documents each cheat and what a verifier needs to catch them. Do not use it.
 
 ## License
 
-MIT, see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE), except `kda-tirx-bwd/kda_backward_packed.py`, which is
+licensed under [Apache-2.0](kda-tirx-bwd/LICENSE-Apache-2.0).
