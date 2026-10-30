@@ -107,6 +107,20 @@ def test_entrypoints_and_local_import_roots(tmp_path, fake_builder, entrypoint):
     assert _load(export.export_huggingface(*arguments)).run() == 9
 
 
+def test_nested_entrypoint_rewrites_absolute_package_import(tmp_path, fake_builder):
+    arguments = _candidate(
+        tmp_path,
+        {
+            "package/kernel.py": (
+                "from package.helper import VALUE\n\ndef run(): return VALUE\n"
+            ),
+            "package/helper.py": "VALUE = 42\n",
+        },
+        entrypoint="package/kernel.py",
+    )
+    assert _load(export.export_huggingface(*arguments)).run() == 42
+
+
 @pytest.mark.parametrize(
     ("source", "path", "expected"),
     [
