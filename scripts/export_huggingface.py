@@ -102,10 +102,25 @@ def _relative_prefix(source_dir: Path, import_root: Path) -> str:
 
 
 def _rewrite_imports(
-    source: str, relative_path: Path, import_root: Path, local_modules: set[str]
+    source: str,
+    relative_path: Path,
+    import_root: Path,
+    local_modules: set[str],
+    solution_modules: set[str] | None = None,
 ) -> str:
     tree = ast.parse(source, filename=str(relative_path))
-    prefix = _relative_prefix(relative_path.parent, import_root)
+    solution_modules = solution_modules or set()
+
+    def local_prefix(module: str) -> str | None:
+        name = module.split(".")[0]
+        if name in local_modules:
+            root = import_root
+        elif name in solution_modules:
+            root = Path()
+        else:
+            return None
+        return _relative_prefix(relative_path.parent, root)
+
     lines = source.encode().splitlines(keepends=True)
     starts = [0]
     for line in lines:
@@ -126,7 +141,8 @@ def _rewrite_imports(
             statements = []
             changed = False
             for alias in node.names:
-                if alias.name.split(".")[0] not in local_modules:
+                prefix = local_prefix(alias.name)
+                if prefix is None:
                     statements.append(f"import {ast.unparse(alias)}")
                     continue
                 changed = True
@@ -147,7 +163,7 @@ def _rewrite_imports(
             isinstance(node, ast.ImportFrom)
             and node.level == 0
             and node.module
-            and node.module.split(".")[0] in local_modules
+            and (prefix := local_prefix(node.module)) is not None
         ):
             names = ", ".join(ast.unparse(alias) for alias in node.names)
             replacement = f"from {prefix}{node.module} import {names}"
@@ -170,6 +186,11 @@ def _package_solution(solution: Path, entrypoint: Path, package: Path) -> None:
         for path in (solution / import_root).iterdir()
         if path.suffix == ".py" or path.is_dir()
     }
+    solution_modules = {
+        path.stem if path.is_file() else path.name
+        for path in solution.iterdir()
+        if path.suffix == ".py" or path.is_dir()
+    }
     adapted = package / "_solution"
     shutil.copytree(solution, adapted)
     for path in sorted(adapted.rglob("*.py")):
@@ -180,7 +201,9 @@ def _package_solution(solution: Path, entrypoint: Path, package: Path) -> None:
         ):
             raise ValueError(f"not a Python module path: {relative}")
         source = path.read_text()
-        rewritten = _rewrite_imports(source, relative, import_root, local_modules)
+        rewritten = _rewrite_imports(
+            source, relative, import_root, local_modules, solution_modules
+        )
         if rewritten != source:
             path.write_text(rewritten)
         for parent in path.parents:
