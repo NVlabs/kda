@@ -312,3 +312,41 @@ def test_real_kernel_builder_round_trip(tmp_path):
     for relative_path, digest in metadata["digest"]["files"].items():
         observed = hashlib.sha256((variant / relative_path).read_bytes()).digest()
         assert base64.b64encode(observed).decode() == digest
+
+
+@pytest.mark.parametrize("encoding", ["utf-8-sig", "latin-1"])
+@pytest.mark.parametrize("entrypoint", ["kernel.py", "package/kernel.py"])
+def test_export_preserves_python_source_encoding(tmp_path, fake_builder, encoding, entrypoint):
+    relative = Path(entrypoint)
+    helper = relative.parent / "helper.py"
+    arguments = _candidate(
+        tmp_path,
+        {
+            relative.as_posix(): "",
+            helper.as_posix(): "",
+        },
+        entrypoint=entrypoint,
+    )
+    sources = {
+        relative: (
+            f"# coding: {encoding}\nfrom helper import VALUE\n"
+            'LABEL = "café"\n\ndef run(): return LABEL + VALUE\n'
+        ).encode(encoding),
+        helper: (f"# coding: {encoding}\n" + 'VALUE = "crème"\n').encode(encoding),
+    }
+    for path, data in sources.items():
+        (arguments[0] / path).write_bytes(data)
+
+    hub = export.export_huggingface(*arguments)
+
+    assert _load(hub).run() == "cafécrème"
+    exported = hub / "build/torch-cuda/_solution"
+    expected = (
+        sources[relative]
+        .decode(encoding)
+        .replace("from helper import VALUE", "from .helper import VALUE")
+    )
+    assert (exported / relative).read_bytes() == expected.encode(encoding)
+    assert (exported / helper).read_bytes() == sources[helper]
+    for path, data in sources.items():
+        assert (arguments[0] / path).read_bytes() == data
