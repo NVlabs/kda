@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import tokenize
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
@@ -179,10 +180,12 @@ def _package_solution(solution: Path, entrypoint: Path, package: Path) -> None:
             for part in relative.with_suffix("").parts
         ):
             raise ValueError(f"not a Python module path: {relative}")
-        source = path.read_text()
+        with tokenize.open(path) as stream:
+            source = stream.read()
+            encoding = stream.encoding
         rewritten = _rewrite_imports(source, relative, import_root, local_modules)
         if rewritten != source:
-            path.write_text(rewritten)
+            path.write_text(rewritten, encoding=encoding)
         for parent in path.parents:
             if not parent.is_relative_to(adapted):
                 break
