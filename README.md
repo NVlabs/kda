@@ -76,6 +76,9 @@ The workflow is intentionally independent of any single benchmark harness or har
 
 Validated CuTe candidates can be [exported as Hugging Face kernels](docs/huggingface-export.md).
 
+Task-owned validation and benchmark reports can optionally be
+[recorded and compared](docs/candidate-evidence.md) with a standalone evidence utility.
+
 ## Recommended Workspace Layout
 
 Use this repository as reference material, then do implementation work elsewhere:

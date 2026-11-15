@@ -45,6 +45,10 @@ Use simple files in the task workspace:
 
 The exact format is less important than consistency. A future reader should be able to reconstruct what changed, what was measured, and why a candidate was promoted.
 
+An optional [candidate evidence utility](candidate-evidence.md) records existing
+task reports and compares compatible measurements with a named baseline. It does
+not run validators, certify correctness, or make promotion decisions.
+
 ## Promotion Rule
 
 Promote a candidate only when it satisfies the task contract and has evidence that it improves or preserves the target metric. If a candidate is rejected, record the reason instead of silently discarding it.
